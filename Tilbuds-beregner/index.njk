@@ -65,82 +65,66 @@ eleventyNavigation:
         <label class="form-check-label" for="exampleCheck1">Rådgivning om tilgængelighedserklæring</label>
       </div>
       <div class="dropdown-divider"></div>
-      <button onclick="getMetricsOfNumberOfSites()" type="button" class="btn btn-primary">Beregn Tilbud</button>
+      <button onclick="resetReceiptTable()" type="button" class="btn btn-primary">Beregn Tilbud</button>
+      <button onclick="addRow()" type="button" class="btn btn-primary">Add Row</button>
       <div class="dropdown-divider"></div>
-      <div id="hours-spent">
-        <p class="font-weight-bold d-inline">Antal timer i alt: </p>
-        <p id="sum-hours" class="d-inline font-weight-bold">0</p>
-        <p class="font-weight-bold d-inline"> timer.</p>
-      </div>
-      <div id="receipt">
-        <p class="font-weight-bold d-inline">Pris i alt: </p>
-        <p id="price-sum" class="d-inline font-weight-bold">0</p>
-        <p class="font-weight-bold d-inline"> kr.</p>
-      </div>
+
+
+<div class="table-responsive-sm">
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Opgave</th>
+<th class="right">Timepris</th>
+  <th class="center">Antal Timer</th>
+<th class="right">Total</th>
+</tr>
+</thead>
+<tbody id="receipt-table-body">
+<tr>
+<td class="left strong">Test af side</td>
+<td class="right">999.00 kr.</td>
+  <td class="center">1</td>
+<td class="right">999.00 kr.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+
     </form>
     </div>
     </div>
   </div>
 </div>
 <script>
-
-async function addParagraphForReviewOfTestHours(){
-  const receiptDiv = document.getElementById('hours-spent');
-
-  const reviewOfTestParagraph = document.createElement("p");
-  const newReviewHoursValue = document.createTextNode("Review af sider: 0")
-  reviewOfTestParagraph.appendChild(newReviewHoursValue);
-
-  reviewOfTestParagraph.id = "review-hours-p-sum"
-  receiptDiv.appendChild(reviewOfTestParagraph)
-}
-
-async function addParagraphForNumberOfHoursPerSite(){
-  const receiptDiv = document.getElementById('hours-spent');
-
-  const testOfSitesHoursParagraph = document.createElement("p");
-  const newHoursValue = document.createTextNode("Test af sider: 0")
-  testOfSitesHoursParagraph.appendChild(newHoursValue);
-
-  testOfSitesHoursParagraph.id = "hours-p-sum";
-  testOfSitesHoursParagraph.className = "my-0"
-  receiptDiv.appendChild(testOfSitesHoursParagraph);
-}
-
-async function updateReceipt(hours, amount){
-  let numberOfHoursPerSiteDiv = document.getElementById('hours-p-sum');
-  let reviewOfTestParagraph = document.getElementById('review-hours-p-sum');
-  let sumOfHours = document.getElementById('sum-hours');
-  let sumOfPrice= document.getElementById('price-sum');
-
-  if(numberOfHoursPerSiteDiv === null){
-    await addParagraphForNumberOfHoursPerSite();
-    await addParagraphForReviewOfTestHours();
-  }
-
-  numberOfHoursPerSiteDiv = document.getElementById('hours-p-sum');
-  reviewOfTestParagraph = document.getElementById('review-hours-p-sum');
-  
-  reviewOfTestParagraph.innerText = `Review af sider: ${hours / 2} timer.` 
-  numberOfHoursPerSiteDiv.innerText = `Test af sider: ${hours} timer.` 
-
-  sumOfPrice.innerText = amount;
-  sumOfHours.innerText = hours + hours / 2
-}
-
-function getMetricsOfNumberOfSites(){
-  const myDropdown = document.getElementById('exampleFormControlSelect1')
-  let numberOfSites = getNumberOfSites();
-  let hours = numberOfSites * 2;
-  let amount = 700 * hours;
-
-  updateReceipt(hours, amount);
-}
+const hourlyRate = 1100;
+const hourlyRateTest = 700;
 
 function getNumberOfSites() {
   const myDropdown = document.getElementById('exampleFormControlSelect1');
   return htmlContent = parseInt(myDropdown.value);
 }
+
+function addRow(){
+  const receiptTable = document.getElementById('receipt-table-body');
+  let htmlElement = document.createElement("tr");
+  let html = '  <td class="left strong">Test af side</td>';
+      html+= '  <td class="right">999.00 kr.</td>';
+      html+= '  <td class="center">1</td>';
+      html+= '  <td class="right">999.00 kr.</td>';
+
+  htmlElement.innerHTML = html;
+  receiptTable.appendChild(htmlElement);
+}
+
+function resetReceiptTable(){
+  const receiptTable = document.getElementById('receipt-table-body');
+  receiptTable.innerHTML = '';
+}
+
 </script>
 
 
