@@ -34,10 +34,6 @@ eleventyNavigation:
       <div class="card py-4 px-4">
       <form>
       <div class="form-group">
-        <label for="exampleFormControlInput1">Email addresse</label>
-        <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
-      </div>
-      <div class="form-group">
         <label for="exampleFormControlSelect1">Antal sider</label>
         <select class="form-control" id="exampleFormControlSelect1">
           <option>0</option>
@@ -53,48 +49,48 @@ eleventyNavigation:
         <label class="form-check-label" for="exampleCheck1">Øvrig test</label>
       </div>
       <div class="form-group form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-        <label class="form-check-label" for="exampleCheck1">Samling af rapport</label>
+        <input type="checkbox" class="form-check-input" id="exampleCheck2">
+        <label class="form-check-label" for="exampleCheck2">Samling af rapport</label>
       </div>
       <div class="form-group form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-        <label class="form-check-label" for="exampleCheck1">Gentest af rettelser</label>
+        <input type="checkbox" class="form-check-input" id="exampleCheck3">
+        <label class="form-check-label" for="exampleCheck3">Gentest af rettelser</label>
       </div>
       <div class="form-group form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-        <label class="form-check-label" for="exampleCheck1">Rådgivning om tilgængelighedserklæring</label>
+        <input type="checkbox" class="form-check-input" id="exampleCheck4">
+        <label class="form-check-label" for="exampleCheck4">Rådgivning om tilgængelighedserklæring</label>
       </div>
       <div class="dropdown-divider"></div>
-      <button onclick="resetReceiptTable()" type="button" class="btn btn-primary">Beregn Tilbud</button>
-      <button onclick="addRow()" type="button" class="btn btn-primary">Add Row</button>
-      <div class="dropdown-divider"></div>
-
-
-<div class="table-responsive-sm">
-<table class="table table-striped">
-<thead>
+      <button onclick="generateReceipt()" type="button" class="btn btn-primary">Beregn Pris</button>
+      <div id="last-divider" class="dropdown-divider"></div>
+    </form>
+    <div class="col-lg-4 col-sm-5 ml-auto">
+<table class="table table-clear">
+<tbody>
 <tr>
-<th>Opgave</th>
-<th class="right">Timepris</th>
-  <th class="center">Antal Timer</th>
-<th class="right">Total</th>
+<td class="left">
+<strong>Subtotal</strong>
+</td>
+<td class="right">$8.497,00</td>
 </tr>
-</thead>
-<tbody id="receipt-table-body">
 <tr>
-<td class="left strong">Test af side</td>
-<td class="right">999.00 kr.</td>
-  <td class="center">1</td>
-<td class="right">999.00 kr.</td>
+<td class="left">
+<strong>Discount (20%)</strong>
+</td>
+<td class="right">$1,699,40</td>
+</tr>
+<tr>
+<td class="left">
+<strong>Total</strong>
+</td>
+<td class="right">
+<strong>$7.477,36</strong>
+</td>
 </tr>
 </tbody>
 </table>
+
 </div>
-
-
-
-
-    </form>
     </div>
     </div>
   </div>
@@ -103,28 +99,103 @@ eleventyNavigation:
 const hourlyRate = 1100;
 const hourlyRateTest = 700;
 
-function getNumberOfSites() {
-  const myDropdown = document.getElementById('exampleFormControlSelect1');
-  return htmlContent = parseInt(myDropdown.value);
+function generateReceipt(){
+  const receiptTable = document.getElementById('receipt-table');
+  const receipt = document.getElementById('receipt-table-body');
+  
+  if(receipt === null){
+    addReceiptTable();
+  }
+
+  if(receipt !== null){
+    resetReceipt();
+  }
+
+  const hoursPrep = 4;
+  const hoursRapport = 1;
+  const hoursCounseling = 1;
+  let sumOfHours = 0;
+  const numberOfSitesToBeTested = getNumberOfSites();
+  const radioButton1 = getValueOfRadioButton(1);
+  const radioButton2 = getValueOfRadioButton(2);
+  const radioButton3 = getValueOfRadioButton(3);
+  const radioButton4 = getValueOfRadioButton(4);
+
+  sumOfHours+=numberOfSitesToBeTested*2;
+  sumOfHours+=hoursPrep;
+  addRow('Forberedelse', hoursPrep, hourlyRate, hoursPrep*hourlyRate);
+  addRow('Test af sider', numberOfSitesToBeTested*2, hourlyRateTest, numberOfSitesToBeTested*2*hourlyRateTest);
+
+  if(radioButton1){
+    sumOfHours+=numberOfSitesToBeTested*2;
+    addRow('Øvrig test', numberOfSitesToBeTested*2, hourlyRateTest, numberOfSitesToBeTested*2*hourlyRateTest);
+  }
+
+  if(radioButton2){
+    sumOfHours+=hoursRapport;
+    addRow('Samling af rapport', hoursRapport, hourlyRate, hourlyRate);
+  }
+
+  if(radioButton3){
+    sumOfHours+=numberOfSitesToBeTested;
+    addRow('Gentest af rettelser', numberOfSitesToBeTested, hourlyRateTest, numberOfSitesToBeTested*hourlyRateTest);
+  }
+
+  if(radioButton4){
+    sumOfHours+=hoursCounseling;
+    addRow('Rådgivning om tilgængelighedserklæring', hoursCounseling, hourlyRate, hourlyRate);
+  }
+  let projectManagementHours = sumOfHours*0.1;
+  addRow('Projektledelse', projectManagementHours.toFixed(2), hourlyRate, hourlyRate*projectManagementHours.toFixed(2))
 }
 
-function addRow(){
+function getValueOfRadioButton(radioButtonNumber){
+  return document.getElementById(`exampleCheck${radioButtonNumber}`).checked;
+}
+
+function getNumberOfSites() {
+  const myDropdown = document.getElementById('exampleFormControlSelect1');
+  return parseInt(myDropdown.value);
+}
+
+function addRow(desc, hours, hourlyRate, total){
   const receiptTable = document.getElementById('receipt-table-body');
   let htmlElement = document.createElement("tr");
-  let html = '  <td class="left strong">Test af side</td>';
-      html+= '  <td class="right">999.00 kr.</td>';
-      html+= '  <td class="center">1</td>';
-      html+= '  <td class="right">999.00 kr.</td>';
+  let html = `  <td class="left strong">${desc}</td>`;
+      html+= `  <td class="right">${hourlyRate}.00 kr.</td>`;
+      html+= `  <td class="center">${hours}</td>`;
+      html+= `  <td class="right">${total}.00 kr.</td>`;
 
   htmlElement.innerHTML = html;
   receiptTable.appendChild(htmlElement);
 }
 
-function resetReceiptTable(){
+function addReceiptTable(){
+  const divider = document.getElementById('last-divider');
+  let htmlElement = document.createElement("div");
+  htmlElement.className = "table-responsive-sm";
+  htmlElement.id = "receipt-table"
+
+  let html ='  <table class="table table-striped">';
+      html+='    <thead>';
+      html+='    <tr>';
+      html+='      <th>Opgave</th>';
+      html+='      <th class="right">Timepris</th>';
+      html+='      <th class="center">Antal Timer</th>';
+      html+='      <th class="right">Total</th>';
+      html+='    </tr>';
+      html+='    </thead>';
+      html+='    <tbody id="receipt-table-body">';
+      html+='    </tbody>';
+      html+='  </table>';
+  
+  htmlElement.innerHTML = html;
+  divider.after(htmlElement);
+}
+
+function resetReceipt(){
   const receiptTable = document.getElementById('receipt-table-body');
   receiptTable.innerHTML = '';
 }
 
 </script>
-
-
