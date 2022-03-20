@@ -1,0 +1,146 @@
+---
+layout: layouts/page.njk
+title: Tilbudsberegner
+templateClass: tmpl-offer
+eleventyNavigation:
+  key: Tilbudsberegner
+  order: 6
+---
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <p>Med vores tilbudsberegner kan du undersøge vores priser:</p>
+      <p>Vores timepriser:</p>
+      <u>
+        <li>
+          Projektledelse: 1100 kr.
+        </li>
+        <li>
+          Rådgivning: 1100 kr.
+        </li>
+        <li>
+          Test: 700 kr.
+        </li>
+      </u>
+      <p>Tidsenheder for test</p>
+      <u>
+        <li>Timer til test pr. side: 2</li>
+        <li>Timer til review består af en fjerde del af tiden af testen på en side</li>
+        <li>Timer til projektledelse består af 10% af de samlede timer</li>
+      </u>
+    </div>
+    <div class="col-sm">
+      <div class="card py-4 px-4">
+      <form>
+      <div class="form-group">
+        <label for="exampleFormControlInput1">Email addresse</label>
+        <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+      </div>
+      <div class="form-group">
+        <label for="exampleFormControlSelect1">Antal sider</label>
+        <select class="form-control" id="exampleFormControlSelect1">
+          <option>0</option>
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+        </select>
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Øvrig test</label>
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Samling af rapport</label>
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Gentest af rettelser</label>
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Rådgivning om tilgængelighedserklæring</label>
+      </div>
+      <div class="dropdown-divider"></div>
+      <button onclick="getMetricsOfNumberOfSites()" type="button" class="btn btn-primary">Beregn Tilbud</button>
+      <div class="dropdown-divider"></div>
+      <div id="hours-spent">
+        <p class="font-weight-bold d-inline">Antal timer i alt: </p>
+        <p id="sum-hours" class="d-inline font-weight-bold">0</p>
+        <p class="font-weight-bold d-inline"> timer.</p>
+      </div>
+      <div id="receipt">
+        <p class="font-weight-bold d-inline">Pris i alt: </p>
+        <p id="price-sum" class="d-inline font-weight-bold">0</p>
+        <p class="font-weight-bold d-inline"> kr.</p>
+      </div>
+    </form>
+    </div>
+    </div>
+  </div>
+</div>
+<script>
+
+async function addParagraphForReviewOfTestHours(){
+  const receiptDiv = document.getElementById('hours-spent');
+
+  const reviewOfTestParagraph = document.createElement("p");
+  const newReviewHoursValue = document.createTextNode("Review af sider: 0")
+  reviewOfTestParagraph.appendChild(newReviewHoursValue);
+
+  reviewOfTestParagraph.id = "review-hours-p-sum"
+  receiptDiv.appendChild(reviewOfTestParagraph)
+}
+
+async function addParagraphForNumberOfHoursPerSite(){
+  const receiptDiv = document.getElementById('hours-spent');
+
+  const testOfSitesHoursParagraph = document.createElement("p");
+  const newHoursValue = document.createTextNode("Test af sider: 0")
+  testOfSitesHoursParagraph.appendChild(newHoursValue);
+
+  testOfSitesHoursParagraph.id = "hours-p-sum";
+  testOfSitesHoursParagraph.className = "my-0"
+  receiptDiv.appendChild(testOfSitesHoursParagraph);
+}
+
+async function updateReceipt(hours, amount){
+  let numberOfHoursPerSiteDiv = document.getElementById('hours-p-sum');
+  let reviewOfTestParagraph = document.getElementById('review-hours-p-sum');
+  let sumOfHours = document.getElementById('sum-hours');
+  let sumOfPrice= document.getElementById('price-sum');
+
+  if(numberOfHoursPerSiteDiv === null){
+    await addParagraphForNumberOfHoursPerSite();
+    await addParagraphForReviewOfTestHours();
+  }
+
+  numberOfHoursPerSiteDiv = document.getElementById('hours-p-sum');
+  reviewOfTestParagraph = document.getElementById('review-hours-p-sum');
+  
+  reviewOfTestParagraph.innerText = `Review af sider: ${hours / 2} timer.` 
+  numberOfHoursPerSiteDiv.innerText = `Test af sider: ${hours} timer.` 
+
+  sumOfPrice.innerText = amount;
+  sumOfHours.innerText = hours + hours / 2
+}
+
+function getMetricsOfNumberOfSites(){
+  const myDropdown = document.getElementById('exampleFormControlSelect1')
+  let numberOfSites = getNumberOfSites();
+  let hours = numberOfSites * 2;
+  let amount = 700 * hours;
+
+  updateReceipt(hours, amount);
+}
+
+function getNumberOfSites() {
+  const myDropdown = document.getElementById('exampleFormControlSelect1');
+  return htmlContent = parseInt(myDropdown.value);
+}
+</script>
+
+
