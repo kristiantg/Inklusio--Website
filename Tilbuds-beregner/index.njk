@@ -64,33 +64,6 @@ eleventyNavigation:
       <button onclick="generateReceipt()" type="button" class="btn btn-primary">Beregn Pris</button>
       <div id="last-divider" class="dropdown-divider"></div>
     </form>
-    <div class="col-lg-4 col-sm-5 ml-auto">
-<table class="table table-clear">
-<tbody>
-<tr>
-<td class="left">
-<strong>Subtotal</strong>
-</td>
-<td class="right">$8.497,00</td>
-</tr>
-<tr>
-<td class="left">
-<strong>Discount (20%)</strong>
-</td>
-<td class="right">$1,699,40</td>
-</tr>
-<tr>
-<td class="left">
-<strong>Total</strong>
-</td>
-<td class="right">
-<strong>$7.477,36</strong>
-</td>
-</tr>
-</tbody>
-</table>
-
-</div>
     </div>
     </div>
   </div>
@@ -100,6 +73,7 @@ const hourlyRate = 1100;
 const hourlyRateTest = 700;
 
 function generateReceipt(){
+  const receiptTableTotal = document.getElementById('receipt-table');
   const receiptTable = document.getElementById('receipt-table');
   const receipt = document.getElementById('receipt-table-body');
   
@@ -107,14 +81,19 @@ function generateReceipt(){
     addReceiptTable();
   }
 
+  if(receiptTableTotal !== null){
+    resetReceiptTotal();
+  }
+
   if(receipt !== null){
     resetReceipt();
   }
 
+  let sumOfPrice = 0;
+  let sumOfHours = 0;
   const hoursPrep = 4;
   const hoursRapport = 1;
   const hoursCounseling = 1;
-  let sumOfHours = 0;
   const numberOfSitesToBeTested = getNumberOfSites();
   const radioButton1 = getValueOfRadioButton(1);
   const radioButton2 = getValueOfRadioButton(2);
@@ -123,30 +102,42 @@ function generateReceipt(){
 
   sumOfHours+=numberOfSitesToBeTested*2;
   sumOfHours+=hoursPrep;
+
+  sumOfPrice+=numberOfSitesToBeTested*2*hourlyRate;
+  sumOfPrice+=hoursPrep*hourlyRate;
+
   addRow('Forberedelse', hoursPrep, hourlyRate, hoursPrep*hourlyRate);
   addRow('Test af sider', numberOfSitesToBeTested*2, hourlyRateTest, numberOfSitesToBeTested*2*hourlyRateTest);
 
   if(radioButton1){
     sumOfHours+=numberOfSitesToBeTested*2;
+    sumOfPrice+=numberOfSitesToBeTested*2*hourlyRateTest;
     addRow('Øvrig test', numberOfSitesToBeTested*2, hourlyRateTest, numberOfSitesToBeTested*2*hourlyRateTest);
   }
 
   if(radioButton2){
     sumOfHours+=hoursRapport;
+    sumOfPrice+=hoursRapport*hourlyRate;
     addRow('Samling af rapport', hoursRapport, hourlyRate, hourlyRate);
   }
 
   if(radioButton3){
     sumOfHours+=numberOfSitesToBeTested;
+    sumOfPrice+=numberOfSitesToBeTested*hourlyRateTest;
     addRow('Gentest af rettelser', numberOfSitesToBeTested, hourlyRateTest, numberOfSitesToBeTested*hourlyRateTest);
   }
 
   if(radioButton4){
     sumOfHours+=hoursCounseling;
+    sumOfPrice+=hoursCounseling*hourlyRate;
     addRow('Rådgivning om tilgængelighedserklæring', hoursCounseling, hourlyRate, hourlyRate);
   }
+
   let projectManagementHours = sumOfHours*0.1;
-  addRow('Projektledelse', projectManagementHours.toFixed(2), hourlyRate, hourlyRate*projectManagementHours.toFixed(2))
+  addRow('Projektledelse', projectManagementHours.toFixed(2), hourlyRate, hourlyRate*projectManagementHours.toFixed(2));
+  sumOfPrice+=projectManagementHours*hourlyRate;
+
+  addTotalTable(sumOfPrice, 25);
 }
 
 function getValueOfRadioButton(radioButtonNumber){
@@ -191,6 +182,50 @@ function addReceiptTable(){
   
   htmlElement.innerHTML = html;
   divider.after(htmlElement);
+}
+
+function addTotalTable(total, discountInPercent){
+  const receiptTable = document.getElementById('receipt-table');
+  let htmlElement = document.createElement("div");
+  let discount = total * discountInPercent / 100; 
+  discount = discount.toFixed(2);
+
+  htmlElement.className = "col-lg-6 col-sm-5 ml-auto";
+  htmlElement.id = "total-table";
+
+let html =`<table class="table table-clear">`
+    html+=` <tbody>`
+    html+=`   <tr>`
+    html+=`     <td class="left">`
+    html+=`       <strong>Subtotal</strong>`
+    html+=`     </td>`
+    html+=`     <td class="right">${total}.00 kr.</td>`
+    html+=`   </tr>`
+    html+=`   <tr>`
+    html+=`     <td class="left">`
+    html+=`       <strong>Discount (${discountInPercent}%)</strong>`
+    html+=`     </td>`
+    html+=`     <td class="right">${discount}.00 kr.</td>`
+    html+=`   </tr>`
+    html+=`   <tr>`
+    html+=`   <td class="left">`
+    html+=`     <strong>Total</strong>`
+    html+=`   </td>`
+    html+=`   <td class="right">`
+    html+=`     <strong>${total - discount}.00 kr.</strong>`
+    html+=`   </td>`
+    html+=`   </tr>`
+    html+=` </tbody>`
+    html+=`</table>`;
+
+
+  htmlElement.innerHTML = html;
+  receiptTable.after(htmlElement);
+}
+
+function resetReceiptTotal(){
+  const receiptTableTotal = document.getElementById('total-table');
+  receiptTableTotal.innerHTML = '';
 }
 
 function resetReceipt(){
